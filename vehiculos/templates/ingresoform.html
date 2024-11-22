@@ -1,0 +1,24 @@
+<div>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="patente">Patente</label>
+            <input type="text" name="patente">
+        </div>
+        <div>
+            <label for="tarifa">tarifa por minuto</label>
+            <input type="number" name="tarifa">
+        </div>
+        <div>
+            <label for="total_pagar">total pagado</label>
+            <input type="number" name="total_pagar">
+        </div>
+        <div>
+            <select name="estado" id="estado">
+                <option value="estacionado">estacionado</option>
+                <option value="no estacionado">no estacionado</option>
+            </select>
+        </div>
+        <input type="submit" value="registrar">
+    </form>
+</div>
