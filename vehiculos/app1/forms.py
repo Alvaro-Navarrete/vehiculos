@@ -1,7 +1,9 @@
 from django import forms
-from .models import Vehiculos
+from .models import RegistroEstacionamiento, Vehiculos, Estado
 
 class VehiculoForm(forms.ModelForm):
+    
     class Meta:
         model = Vehiculos
-        fields = ['patente', 'tarifa', 'total_pagar', 'estado']
+        fields = ['patente']
+        

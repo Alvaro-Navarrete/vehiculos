@@ -1,0 +1,25 @@
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Patente</th>
+            <th scope="col">Hora Entrada</th>
+            <th scope="col">Hora Salida</th>
+            <th scope="col">Estado Vehiculo</th>
+            <th scope="col">Tarifa</th>
+            <th scope="col">Accion</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th scope="row"></th>
+            <td>{{registro.patente}}</td>
+            <td>{{registro.hora_entrada|date:"d/M/Y H:i"}}</td>
+            <td>{{registro.hora_salida|date:"d/M/Y H:i"}}</td>
+            <td>{{registro.estado.nombre}}</td>
+            <td>{{registro.tarifa.precio}}</td>
+            <td><a href="/salida/?accion=salida&patente={{registro.patente}}">Salida</a></td>
+        </tr>
+    </tbody>
+</table>

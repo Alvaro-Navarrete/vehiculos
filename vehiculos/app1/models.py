@@ -1,15 +1,33 @@
 from django.db import models
 
+
+    
+class Estado(models.Model):
+    
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=25, unique=True)
+
+
 class Vehiculos(models.Model):
     
-    patente = models.CharField(primary_key=True, max_length=7, null=False)
+    patente = models.CharField(max_length=7, null=False, primary_key=True)
+    estado = models.ForeignKey(Estado, on_delete=models.SET_NULL, null=True)
+    registro = models.ForeignKey("RegistroEstacionamiento", null=True, blank=True, on_delete=models.SET_NULL)
+
+
+class Tarifa(models.Model):
+    
+    id = models.AutoField(primary_key=True)
+    precio = models.PositiveIntegerField()
+    
+    
+class RegistroEstacionamiento(models.Model):
+    
+    id = models.AutoField(primary_key=True, null=False)
+    vehiculo = models.ForeignKey(Vehiculos, on_delete=models.CASCADE)
+    tarifa = models.ForeignKey(Tarifa, on_delete=models.CASCADE)
     hora_salida = models.DateTimeField(null=True)
-    total_pagar = models.PositiveIntegerField()
-    estado = models.CharField(max_length=25)
     hora_entrada = models.DateTimeField(auto_now_add=True)
-    tarifa = models.PositiveIntegerField()
+    total_pagado = models.PositiveIntegerField()
     
-    
-    def __str__(self) -> str:
-        return self.patente
     

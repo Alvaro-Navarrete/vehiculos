@@ -1,90 +1,111 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
-from django.db import IntegrityError
-from .models import Vehiculos
+from .models import Vehiculos, Estado, RegistroEstacionamiento, Tarifa
 from .forms import VehiculoForm
-
+from datetime import datetime
 
 def index(request):
     return render(request, 'app1/index.html')
 
 
+def datos_salida(patente):
+    try:
+        
+        vehiculo = Vehiculos.objects.get(pk = patente)
+        
+        # Verifica si 'patente' es un str vacio
+        if patente == "":
+            raise Exception("Debe ingresar una patente valida")
+        
+        
+        
+        registro = RegistroEstacionamiento.objects.get(pk = vehiculo.registro.id)
+        registro.hora_salida = datetime.now().replace(tzinfo=None)
+        
+        tiempo_total = registro.hora_salida - registro.hora_entrada.replace(tzinfo=None)
+        minutos = int(tiempo_total.total_seconds() / 60)
+        
+        registro.total_pagado =  minutos * registro.tarifa.precio
+        
+        datos = {
+            "patente" : vehiculo.patente,
+            "estado" : vehiculo.estado,
+            "hora_entrada" : registro.hora_entrada,
+            "hora_salida" : registro.hora_salida,
+            "minutos" : minutos,
+            "tarifa" : registro.tarifa,
+            "total_pagado" : registro.total_pagado
+        }
+        
+        registro.save()
+        return datos
+        
+    except Exception as e:
+        print(f"error : {e}")
+        
+def registrar_salida(patente):
+    vehiculo = Vehiculos.objects.get(pk = patente)
+    # Variable con el estado 'no estacionado'
+    no_estacionado = Estado.objects.get(pk = 2)
+    
+    vehiculo.estado = no_estacionado
+    vehiculo.save()
+
 def salida(request):
+    salida = None
+    patente = request.GET.get('patente')
+    accion = request.GET.get('accion')
+    if accion == 'buscar':
+        salida = datos_salida(patente)
     
-    vehiculo = Vehiculos.objects.all()
-    return render(request,'app1/salida.html', {'lista_vehiculos':vehiculo})
+    if accion == 'salida':
+        registrar_salida(patente)
+
+    return render(request,'app1/registro_salida.html', {'registro': salida})
 
 
-def marcar_salida(request):
+def ingreso_vehiculo(request):
     
-    estado = Vehiculos.estado
-    if estado == "estacionado":
-        estado = "no estacionado"
-    
-    return
-
-
-def create_view(request):
-    # if request.method == "POST":
-    #     patente = request.POST.get("patente")
-    #     hora_entrada = request.POST.get("hora_entrada")
-    #     hora_salida = request.POST.get("hora_salida")
-    #     total_pagar = request.POST.get("total_pagar")
-    #     estado = request.POST.get("estado")
-        
-    #     Vehiculos.objects.create(patente = patente, hora_entrada = hora_entrada, hora_salida = hora_salida, total_pagar = total_pagar, estado = estado)
-    #     return redirect('list_view')
-        
-        # except IntegrityError as e:
-        #     error_message = str(e)
-        #     if "UNIQUE constraint failed: clientes_cliente.correo_electronico" in error_message:
-        #         msg_error = ("Telefono ya existe")
-        #     elif "UNIQUE constraint failed" in error_message:
-        #         msg_error =("llave duplicada :" + error_message)
-        #     elif "NOT NULL constraint failed" in error_message:
-        #         msg_error =("Error: Un campo obligatorio está vacío.")
-        #     elif "FOREIGN KEY constraint failed" in error_message:
-        #         msg_error =("Error: El valor de la clave foránea no es válido.")
-        #     else:
-        #         msg_error =(f"Error de integridad desconocido: {error_message}")
-           
-
-        #     form = ClienteForm() 
-        #     return render(request,'create.html', {'form': form, 'error': msg_error})
-        
-        
     if request.method == 'POST':
-        form = VehiculoForm(request.POST)
-        if form.is_valid:
-            form.save()
+        try:
+            
+            patente = request.POST.get('patente').strip().upper()
+            
+            # Verifica si 'patente' es un str vacio
+            if patente == "":
+                raise Exception("Debe ingresar una patente valida")
+            
+            # Variable con el estado 'estacionado'
+            estacionado = Estado.objects.get(pk = 1)
+            
+            try:
+                # Vehiculo con la patente obtenida desde el formulario
+                vehiculo = Vehiculos.objects.get(pk = patente)
+                if vehiculo.estado == Estado.objects.get(pk = 1):
+                    raise Exception("Vehiculo ya está estacionado")
+            except Vehiculos.DoesNotExist:
+                vehiculo = Vehiculos.objects.create(patente = patente, estado = estacionado)
+            
+            
+            obj_tarifa = Tarifa.objects.get(pk = 1)
+            
+            registro = RegistroEstacionamiento.objects.create(vehiculo = vehiculo, tarifa = obj_tarifa, total_pagado = 0)
+            
+            # Actualiza el estado del vehiculo si no estaba estacionado
+            vehiculo.registro = registro
+            vehiculo.estado = estacionado
+            vehiculo.save()
+            
             return redirect('index')
-    else:
-        form = VehiculoForm() 
-    return render(request,'app1/ingreso.html', {'form': form})
+            
+        
+        except Exception as e:
+            print(f'Error al crear el registro: {e}')
+        
+    return render(request,'app1/ingreso.html')
 
-def update_view(request, patente):
-    vehiculo: Vehiculos = get_object_or_404(Vehiculos, patente = patente)
-    if request.method == "POST":
-        form = VehiculoForm(request.POST, instance=vehiculo)
-        if form.is_valid:
-            form.save()
-            return redirect('list_view')
-    else:
-        form = VehiculoForm(instance=vehiculo) 
-    return render(request,'create.html', {'form': form} )
 
- 
-def read_view(request, patente):
-    vehiculo: Vehiculos = get_object_or_404(Vehiculos, patente = patente)
-    print(vehiculo)
-    return render(request,'read.html', {'vehiculo': vehiculo})
 
-def delete_view(request, patente):
-    vehiculo: Vehiculos = get_object_or_404(Vehiculos, patente = patente)
-    vehiculo.delete()
-    return redirect('list_view')
-    #return render(request,'delete.html')
 
 def list_view(request):
-    vehiculo = Vehiculos.objects.all()
-    return render(request,'list.html', {'lista_vehiculos':vehiculo})
+    registro = RegistroEstacionamiento.objects.all()
+    return render(request,'app1/list.html', {'registros' : registro})

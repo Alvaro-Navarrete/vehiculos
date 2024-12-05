@@ -4,10 +4,11 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    # path('ingreso/', views.ingresar, name='ingresar'),
-    path('ingreso/', views.create_view, name='create'),
-    path('update/<str:patente>', views.update_view, name='update'),
-    path('read/<str:patente>', views.read_view, name='read'),
-    path('delete/<str:patente>', views.delete_view, name='delete'),
+    
+    path('ingreso/', views.ingreso_vehiculo, name='create'),
+    
     path('list/', views.list_view, name='list'),
+    path('salida/', views.salida, name='salida'),
+    # path('salida/<str:patente>', views.marcar_salida, name='salidaEstado'),
+    
 ]
