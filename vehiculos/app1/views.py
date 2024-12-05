@@ -9,6 +9,21 @@ def index(request):
     return render(request, 'app1/index.html')
 
 
+def salida(request):
+    
+    vehiculo = Vehiculos.objects.all()
+    return render(request,'app1/salida.html', {'lista_vehiculos':vehiculo})
+
+
+def marcar_salida(request):
+    
+    estado = Vehiculos.estado
+    if estado == "estacionado":
+        estado = "no estacionado"
+    
+    return
+
+
 def create_view(request):
     # if request.method == "POST":
     #     patente = request.POST.get("patente")
