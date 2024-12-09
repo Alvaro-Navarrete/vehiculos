@@ -1,7 +1,16 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
+
+    <form action="/salida/" method="post">
+        {% csrf_token %}
+        <div>
+            <input type="text" placeholder="Patente">
+            <button type="submit">Buscar</button>
+        </div>
+        <a href="/list/?estado=">buscar vehiculo</a>
+    </form>
+
     {% if registro %}
         {% include "salida.html" %}
     {% endif %}

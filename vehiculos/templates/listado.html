@@ -7,6 +7,7 @@
             <th scope="col">Hora Entrada</th>
             <th scope="col">Hora Salida</th>
             <th scope="col">Estado Vehiculo</th>
+            <th scope="col">Monto</th>
             <th scope="col">Tarifa</th>
             <th scope="col">Accion</th>
         </tr>
@@ -19,7 +20,8 @@
                 <td>{{registro.hora_entrada|date:"d/M/Y H:i"}}</td>
                 <td>{{registro.hora_salida|date:"d/M/Y H:i"}}</td>
                 <td>{{registro.vehiculo.estado.nombre}}</td>
-                <td>{{registro.tarifa.precio}}</td>
+                <td>{{registro.total_pagado}}</td>
+                <td>{{registro.tarifa}}</td>
                 <td><a href="/salida/?accion=buscar&patente={{registro.vehiculo.patente}}">Salida</a></td>
             </tr>
         {% endfor %}

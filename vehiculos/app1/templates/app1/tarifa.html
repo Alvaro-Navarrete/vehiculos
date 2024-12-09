@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<form action="/tarifa/" method="post">
+    {% csrf_token %}
+    <input type="text" name="tarifa" value="{{tarifa.precio}}">
+
+    <button type="submit">Guardar</button>
+
+</form>
+
+{% endblock content %}

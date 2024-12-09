@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Vehiculos, Estado, RegistroEstacionamiento, Tarifa
 from .forms import VehiculoForm
-from datetime import datetime
+from django.utils import timezone
 
 def index(request):
     return render(request, 'app1/index.html')
@@ -19,12 +19,13 @@ def datos_salida(patente):
         
         
         registro = RegistroEstacionamiento.objects.get(pk = vehiculo.registro.id)
-        registro.hora_salida = datetime.now().replace(tzinfo=None)
+        registro.hora_salida = timezone.now()
         
-        tiempo_total = registro.hora_salida - registro.hora_entrada.replace(tzinfo=None)
+        
+        tiempo_total = registro.hora_salida - registro.hora_entrada
         minutos = int(tiempo_total.total_seconds() / 60)
         
-        registro.total_pagado =  minutos * registro.tarifa.precio
+        registro.total_pagado =  minutos * registro.tarifa
         
         datos = {
             "patente" : vehiculo.patente,
@@ -88,7 +89,7 @@ def ingreso_vehiculo(request):
             
             obj_tarifa = Tarifa.objects.get(pk = 1)
             
-            registro = RegistroEstacionamiento.objects.create(vehiculo = vehiculo, tarifa = obj_tarifa, total_pagado = 0)
+            registro = RegistroEstacionamiento.objects.create(vehiculo = vehiculo, tarifa = obj_tarifa.precio, total_pagado = 0)
             
             # Actualiza el estado del vehiculo si no estaba estacionado
             vehiculo.registro = registro
@@ -103,6 +104,19 @@ def ingreso_vehiculo(request):
         
     return render(request,'app1/ingreso.html')
 
+
+
+def tarifa(request):
+    tarifa = Tarifa.objects.get(pk = 1)
+    
+    if request.method == 'POST':
+        
+        valor = request.POST.get('tarifa')
+        tarifa.precio = int(valor)
+        
+        tarifa.save()
+    
+    return render(request, 'app1/tarifa.html', {'tarifa' : tarifa})
 
 
 

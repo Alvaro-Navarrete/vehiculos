@@ -25,7 +25,7 @@ class RegistroEstacionamiento(models.Model):
     
     id = models.AutoField(primary_key=True, null=False)
     vehiculo = models.ForeignKey(Vehiculos, on_delete=models.CASCADE)
-    tarifa = models.ForeignKey(Tarifa, on_delete=models.CASCADE)
+    tarifa = models.PositiveIntegerField(null=False) # Cambiar por un PositiveIntegerField
     hora_salida = models.DateTimeField(null=True)
     hora_entrada = models.DateTimeField(auto_now_add=True)
     total_pagado = models.PositiveIntegerField()
